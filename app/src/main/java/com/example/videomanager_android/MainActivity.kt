@@ -4,13 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.videomanager_android.ui.cadastro.CadastroScreen
+import com.example.videomanager_android.ui.login.LoginScreen
 import com.example.videomanager_android.ui.theme.VideoManagerAndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +18,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             VideoManagerAndroidTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                VideoManagerAndroidTheme {
+
+                    VideoManagerAppNavigation()
+
                 }
             }
         }
@@ -31,17 +29,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun VideoManagerAppNavigation() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    VideoManagerAndroidTheme {
-        Greeting("Android")
+
+    NavHost(navController = navController, startDestination = "login") {
+
+        // Define a rota da tela de Login
+        composable("login") {
+            LoginScreen(
+                onNavigateToCadastro = {
+                    navController.navigate("cadastro")
+                }
+            )
+        }
+
+        // Define a rota da tela de Cadastro
+        composable("cadastro") {
+            CadastroScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
