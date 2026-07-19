@@ -1,4 +1,4 @@
-package com.example.videomanager_android.ui.cadastro
+package com.example.videomanager_android.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.videomanager_android.data.model.Usuarios.UsuarioRequest
 import com.example.videomanager_android.data.remote.di.NetworkModule
-import com.example.videomanager_android.ui.login.LoginScreen
 import com.example.videomanager_android.ui.theme.VideoManagerAndroidTheme
 import kotlinx.coroutines.launch
 
