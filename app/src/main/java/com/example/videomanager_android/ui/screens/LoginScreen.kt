@@ -1,4 +1,4 @@
-package com.example.videomanager_android.ui.login
+package com.example.videomanager_android.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -12,14 +12,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.videomanager_android.data.model.Auth.LoginRequest
 import com.example.videomanager_android.data.model.ResponseModel
+import com.example.videomanager_android.data.remote.JwtUtils
+import com.example.videomanager_android.data.remote.TokenManager
 import com.example.videomanager_android.data.remote.di.NetworkModule
 import com.example.videomanager_android.ui.theme.VideoManagerAndroidTheme
-import kotlinx.coroutines.coroutineScope
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onNavigateToCadastro: () -> Unit = {}
+    onNavigateToCadastro: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
@@ -68,19 +71,21 @@ fun LoginScreen(
                         val response = NetworkModule.apiService.loginUsuario(request)
 
                         if (response.isSuccessful && response.body()?.status == true) {
+
                             val mensagemSucesso = response.body()?.mensagem ?: "Bem-vindo!"
-                            val token = response.body()?.dados
+                            val token = response.body()?.dados ?: ""
 
+                            TokenManager.salvarToken(token)
 
-                            Toast.makeText(context, token ?: "Token nulo", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, mensagemSucesso, Toast.LENGTH_LONG).show()
 
-                            // onNavigateToHome()
+                            onLoginSuccess()
 
                         } else {
                             val erroBruto = response.errorBody()?.string()
 
                             val mensagemErro = try {
-                                val erroConvertido = com.google.gson.Gson().fromJson(erroBruto, ResponseModel::class.java)
+                                val erroConvertido = Gson().fromJson(erroBruto, ResponseModel::class.java)
                                 erroConvertido?.mensagem ?: "E-mail ou senha incorretos."
                             } catch (e: Exception) {
                                 "Erro no servidor: ${response.code()}"
@@ -110,6 +115,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview(){
     VideoManagerAndroidTheme{
-        LoginScreen()
+        LoginScreen(onNavigateToCadastro = {}, onLoginSuccess = {})
     }
 }
