@@ -20,14 +20,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.videomanager_android.data.model.Videos.VideoDados
 import com.example.videomanager_android.data.remote.TokenManager
 import com.example.videomanager_android.data.remote.di.NetworkConfig
 import com.example.videomanager_android.data.remote.di.NetworkModule
+import com.example.videomanager_android.ui.components.HeaderPrincipal
 import com.example.videomanager_android.ui.theme.VideoManagerAndroidTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: androidx.navigation.NavController) {
+
     var pesquisa by remember { mutableStateOf("") }
     var nomeUsuario by remember { mutableStateOf("Carregando...") }
     var emailUsuario by remember { mutableStateOf("Carregando...") }
@@ -36,8 +39,8 @@ fun HomeScreen() {
     var carregarVideos by remember { mutableStateOf(true) }
 
     val baseUrlApi = NetworkConfig.baseUrlApi
-
     val context = androidx.compose.ui.platform.LocalContext.current
+
 
     LaunchedEffect(Unit) {
         try {
@@ -104,9 +107,23 @@ fun HomeScreen() {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Header De navegação", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            HeaderPrincipal(
+                titulo = "VideoManager",
+                onPerfilClick = {
+                    android.widget.Toast.makeText(context, "Você já está no seu Perfil!", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                onVideosClick = {
+
+                    android.widget.Toast.makeText(context, "", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                onSairClick = {
+                    TokenManager.limpar()
+
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                    android.widget.Toast.makeText(context, "Sessão encerrada com sucesso", android.widget.Toast.LENGTH_LONG).show()
+                }
             )
         }
     ) { paddingValues ->
@@ -306,7 +323,9 @@ fun HomeScreen() {
 @Composable
 fun HomeScreenPreview() {
 
+    val navControllerFake = rememberNavController()
+
     VideoManagerAndroidTheme {
-        HomeScreen()
+        HomeScreen(navController = navControllerFake)
     }
 }

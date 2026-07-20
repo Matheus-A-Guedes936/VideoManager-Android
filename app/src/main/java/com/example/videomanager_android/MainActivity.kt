@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.videomanager_android.data.remote.JwtUtils
+import com.example.videomanager_android.data.remote.TokenManager
 import com.example.videomanager_android.ui.screens.CadastroScreen
 import com.example.videomanager_android.ui.screens.LoginScreen
 import com.example.videomanager_android.ui.screens.HomeScreen
@@ -16,6 +18,9 @@ import com.example.videomanager_android.ui.theme.VideoManagerAndroidTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        TokenManager.inicializar(applicationContext)
+
         enableEdgeToEdge()
         setContent {
             VideoManagerAndroidTheme {
@@ -28,9 +33,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun VideoManagerAppNavigation() {
+    val token = TokenManager.obterToken()
+
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "login") {
+    val usuarioEstaLogado = !token.isNullOrEmpty() && !JwtUtils.isTokenExpirado(token)
+
+    if (!token.isNullOrEmpty() && JwtUtils.isTokenExpirado(token)) {
+        TokenManager.limpar()
+    }
+
+    val destinoInicial = if (usuarioEstaLogado) "home" else "login"
+
+    NavHost(
+        navController = navController,
+        startDestination = destinoInicial
+    ) {
 
 
         composable("login") {
@@ -56,7 +74,7 @@ fun VideoManagerAppNavigation() {
         }
 
         composable("home") {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
     }
 }
